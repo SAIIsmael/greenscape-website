@@ -2,21 +2,36 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "@typescript-eslint/eslint-plugin";
 import pluginReact from "eslint-plugin-react";
+import { Linter } from "eslint";
+import parser from "@typescript-eslint/parser"; // Explicitly import the parser
 
-/** @type {import('eslint').Linter.Config[]} */
+/** @type {Linter.Config[]} */
 export default [
   {
-    files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+    files: ["**/*.{ts,tsx}"], // TypeScript files
     languageOptions: {
-      globals: globals.browser,
+      globals: globals.browser, // Browser globals
+      parser: parser, // Set the parser to @typescript-eslint/parser
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true, // Enable JSX syntax for React
+        },
+        ecmaVersion: "latest", // Latest ECMAScript version
+        sourceType: "module", // Use ES6 modules
+      },
     },
     plugins: {
-      react: pluginReact,
-      "@typescript-eslint": tseslint,
+      react: pluginReact, // React plugin
+      "@typescript-eslint": tseslint, // TypeScript plugin
     },
     rules: {
-      "react/react-in-jsx-scope": "off", // Disable the JSX scope check
-      // Add any other rules here if necessary
+      // Manually include recommended rules for ESLint, React, and TypeScript
+      ...pluginJs.configs.recommended.rules, // ESLint recommended rules
+      ...tseslint.configs.recommended.rules, // TypeScript recommended rules
+      ...pluginReact.configs.recommended.rules, // React recommended rules
+
+      "react/react-in-jsx-scope": "off", // Disable React in JSX scope (React 17+)
+      "react/prop-types": "off", // Disable prop-types when using TypeScript
     },
     settings: {
       react: {
@@ -24,7 +39,4 @@ export default [
       },
     },
   },
-  pluginJs.configs.recommended, // Recommended ESLint rules
-  tseslint.configs.recommended, // Recommended TypeScript rules
-  pluginReact.configs.recommended, // Recommended React rules
 ];
